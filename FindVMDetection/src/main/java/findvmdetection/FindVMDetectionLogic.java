@@ -10,7 +10,6 @@ import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.InstructionIterator;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
-import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
 public class FindVMDetectionLogic {
@@ -28,32 +27,14 @@ public class FindVMDetectionLogic {
 	private int suspiciousOccurrencesFound = 0;
 	private Address [] jumpTargets;
 	
-	private final List<String> suspiciousInstructions = Arrays.asList("MOVSXD");
+	private final List<String> suspiciousInstructions; 
 	
-	/*private final List<String> suspiciousInstructions = Arrays.asList
-			(
-					"VMLOAD",
-					"VMMCALL",
-					"VMRUN",
-					"VMSAVE",
-					"VMFUNC",
-					"VMPTRLD",
-					"VMPTRST",
-					"VMCLEAR",
-					"VMREAD",
-					"VMWRITE",
-					"VMCALL",
-					"VMLAUNCH",
-					"VMRESUME",
-					"VMXOFF",
-					"VMXON"
-			);*/
-	
-	public FindVMDetectionLogic(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log){
+	public FindVMDetectionLogic(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions){
 		this.program = program;
 		this.set = set;
 		this.monitor = monitor;
 		this.log = log;
+		this.suspiciousInstructions = suspiciousInstructions;
 		listing = program.getListing();
 		instructions = listing.getInstructions(set, true);
 	}
