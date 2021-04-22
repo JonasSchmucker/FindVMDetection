@@ -1,5 +1,6 @@
 package findvmdetection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class FindVMDetectionLogic {
 	private Instruction currentInstruction;
 	private int suspiciousOccurrencesFound = 0;
 	private Address [] jumpTargets;
+	private List<Address> addressesOfOccurences = new ArrayList();
 	
 	private final List<String> suspiciousInstructions; 
 	
@@ -46,13 +48,18 @@ public class FindVMDetectionLogic {
 	public boolean step() {
 		if(!instructions.hasNext()) {
 			log.appendMsg("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
+			if(!addressesOfOccurences.isEmpty()) {
+				log.appendMsg("First at: " + addressesOfOccurences.get(0).toString());
+			}
 			return false;
 		}
 		currentInstruction = instructions.next();
 		if(isSuspiciousInstruction(currentInstruction)) {
 			suspiciousOccurrencesFound++;
 			
+			addressesOfOccurences.add(currentInstruction.getAddress());
 			currentInstruction.setComment(0, "Might be used to distiguish between VM and Host");
+			
 			Instruction nextConditionalJump = seekToNextConditionalJump(currentInstruction);
 			
 			if(nextConditionalJump != null) {
