@@ -13,7 +13,12 @@ import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.util.task.TaskMonitor;
 
-public class FindVMDetectionLogic {
+/**
+ * 
+ * @author Jonas Schmucker
+ *
+ */
+public class FindVMDetectionCPUInstructionStrategy implements FindVMDetectionAnalyzingStrategyInterface{
 
 	private final static int MAX_DISTANCE_FOR_JUMP = 1000; //Searches this many Instructions after a suspicious instruction is found
 	private final static int EOL_COMMENT = 0; //Code for EOL-Comment
@@ -27,11 +32,11 @@ public class FindVMDetectionLogic {
 	private Instruction currentInstruction;
 	private int suspiciousOccurrencesFound = 0;
 	private Address [] jumpTargets;
-	private List<Address> addressesOfOccurences = new ArrayList();
+	private List<Address> addressesOfOccurences = new ArrayList<>();
 	
 	private final List<String> suspiciousInstructions; 
 	
-	public FindVMDetectionLogic(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions){
+	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions){
 		this.program = program;
 		this.set = set;
 		this.monitor = monitor;
@@ -76,6 +81,11 @@ public class FindVMDetectionLogic {
 		return true;
 	}
 	
+	/**
+	 * checks if this Instruction is considered suspicious
+	 * @param inst the Instruction to be analyzed
+	 * @return {@code true} if Instruction is suspicious
+	 */
 	private boolean isSuspiciousInstruction(Instruction inst) {
 		return suspiciousInstructions.contains(inst.getMnemonicString());
 	}

@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author Jonas Schmucker
+ *
+ */
 public class FindVMDetectionCSVLoader {
 	private static final String COMMA_DELIMITER = ",";
 	private File csvFile;
@@ -15,6 +19,11 @@ public class FindVMDetectionCSVLoader {
 		this.csvFile = csvFile;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public List<String> getSuspiciousInstructions() throws IOException{
 		
 		FileReader in = new FileReader(csvFile);
