@@ -43,6 +43,10 @@ import ghidra.util.task.TaskMonitor;
  */
 public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 
+	private static final String ANALYSER_SHORT_DESCRIPTION = "Finds where Malware might detected a VM, and shows alternative Behaviours for Host and VM";
+	private static final String ANALYSER_NAME = "Find VM Detection";
+	private static final String NO_STRATEGY_SELECTED = "No Strategy / Strategies selected";
+	private static final String ANALYZER_WAS_CANCELLED_PER_USER_REQUEST = "Analyzer was cancelled per user request";
 	private final static String OPTION_ONE_NAME = "Path to suspicious Mnemonics csv";
 	private final static String HOVER_OPTION_ONE_TEXT = "Path to suspicious Mnemonics csv";
 	private final static String DEFAULT_PATH_TO_CSV = "C:\\Users\\jonas\\git\\FindVMDetection\\FindVMDetection\\src\\main\\resources\\testMnemonic.csv";
@@ -61,15 +65,15 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		};
 	
 	
-	private List<FindVMDetectionAnalyzingStrategyInterface> queuedStrategies = new ArrayList<>();
+	private List<FindVMDetectionAnalyzingStrategyAbstract> queuedStrategies = new ArrayList<>();
 	private boolean [] strategyToRun = new boolean [STRATEGY_COUNT];
 	private File csvFile;
 
 	public FindVMDetectionAnalyzer() {
 
 
-		super("Find VM Detection",
-				"Finds where Malware might detected a VM, and shows alternative Behaviours for Host and VM",
+		super(ANALYSER_NAME,
+				ANALYSER_SHORT_DESCRIPTION,
 				AnalyzerType.INSTRUCTION_ANALYZER
 			);
 
@@ -126,13 +130,13 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		populateStrategyQueue(program, set, monitor, log, suspiciousInstructions);
 		
 		if(queuedStrategies.isEmpty()) {
-			CancelledException e = new CancelledException("No Strategy / Strategies selected");
+			CancelledException e = new CancelledException(NO_STRATEGY_SELECTED);
 			throw e;
 		}
 		
-		for(FindVMDetectionAnalyzingStrategyInterface strategy : queuedStrategies) {
+		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
 			if(monitor.isCancelled()) {
-				CancelledException e = new CancelledException("Analyzer was cancelled per user request");
+				CancelledException e = new CancelledException(ANALYZER_WAS_CANCELLED_PER_USER_REQUEST);
 				throw e;
 			}
 			
@@ -141,49 +145,11 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		}
 
 		if(monitor.isCancelled()) {
-			CancelledException e = new CancelledException("Analyzer was cancelled per user request");
+			CancelledException e = new CancelledException(ANALYZER_WAS_CANCELLED_PER_USER_REQUEST);
 			throw e;
 		}
 		
 		return true; //Analysis should have succeeded if this is reached
-	}
-	
-	/**
-	 * Initialises all selected analysing Strategies 
-	 * @param program
-	 * @param set
-	 * @param monitor
-	 * @param log
-	 * @param suspiciousInstructions
-	 */
-	private void populateStrategyQueue(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions) {
-		if(strategyToRun[0]) {
-			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, suspiciousInstructions));
-		}
-		if(strategyToRun[1]){
-			queuedStrategies.add(new FindVMDetectionUserComputerNamesStrategy());
-		}
-		if(strategyToRun[2]){
-			queuedStrategies.add(new FindVMDetectionRunningProcessesStrategy());
-		}
-		if(strategyToRun[3]){
-			queuedStrategies.add(new FindVMDetectionRunningServicesStrategy());
-		}
-		if(strategyToRun[4]){
-			queuedStrategies.add(new FindVMDetectionLoadedModulesMemoryScanningStrategy());
-		}
-		if(strategyToRun[5]){
-			queuedStrategies.add(new FindVMDetectionLoadedDriversDevicesStrategy());
-		}
-		if(strategyToRun[6]){
-			queuedStrategies.add(new FindVMDetectionFilesDirectorysStrategy());
-		}
-		if(strategyToRun[7]){
-			queuedStrategies.add(new FindVMDetectionRegistryKeyValuesStrategy());
-		}
-		if(strategyToRun[8]){
-			queuedStrategies.add(new FindVMDetectionMutexSemaphoresPortsStrategy());
-		}
 	}
 
 	@Override
@@ -218,6 +184,44 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			strategyToRun[i] = options.getBoolean(STRATEGY_NAMES[i], strategyToRun[i]);
+		}
+	}
+	
+	/**
+	 * Initialises all selected analysing Strategies 
+	 * @param program
+	 * @param set
+	 * @param monitor
+	 * @param log
+	 * @param suspiciousInstructions
+	 */
+	private void populateStrategyQueue(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions) {
+		if(strategyToRun[0]) {
+			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, suspiciousInstructions));
+		}
+		if(strategyToRun[1]){
+			queuedStrategies.add(new FindVMDetectionUserComputerNamesStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[2]){
+			queuedStrategies.add(new FindVMDetectionRunningProcessesStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[3]){
+			queuedStrategies.add(new FindVMDetectionRunningServicesStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[4]){
+			queuedStrategies.add(new FindVMDetectionLoadedModulesMemoryScanningStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[5]){
+			queuedStrategies.add(new FindVMDetectionLoadedDriversDevicesStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[6]){
+			queuedStrategies.add(new FindVMDetectionFilesDirectorysStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[7]){
+			queuedStrategies.add(new FindVMDetectionRegistryKeyValuesStrategy(program, set, monitor, log));
+		}
+		if(strategyToRun[8]){
+			queuedStrategies.add(new FindVMDetectionMutexSemaphoresPortsStrategy(program, set, monitor, log));
 		}
 	}
 }

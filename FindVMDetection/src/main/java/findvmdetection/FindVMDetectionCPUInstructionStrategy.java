@@ -1,7 +1,6 @@
 package findvmdetection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ghidra.app.util.importer.MessageLog;
@@ -18,15 +17,11 @@ import ghidra.util.task.TaskMonitor;
  * @author Jonas Schmucker
  *
  */
-public class FindVMDetectionCPUInstructionStrategy implements FindVMDetectionAnalyzingStrategyInterface{
+public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyzingStrategyAbstract{
 
 	private final static int MAX_DISTANCE_FOR_JUMP = 1000; //Searches this many Instructions after a suspicious instruction is found
 	private final static int EOL_COMMENT = 0; //Code for EOL-Comment
 	
-	private final Program program;
-	private final AddressSetView set;
-	private final TaskMonitor monitor;
-	private final MessageLog log;
 	private final Listing listing;
 	private InstructionIterator instructions;
 	private Instruction currentInstruction;
@@ -37,10 +32,7 @@ public class FindVMDetectionCPUInstructionStrategy implements FindVMDetectionAna
 	private final List<String> suspiciousInstructions; 
 	
 	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions){
-		this.program = program;
-		this.set = set;
-		this.monitor = monitor;
-		this.log = log;
+		super(program, set, monitor, log);
 		this.suspiciousInstructions = suspiciousInstructions;
 		listing = program.getListing();
 		instructions = listing.getInstructions(set, true);
