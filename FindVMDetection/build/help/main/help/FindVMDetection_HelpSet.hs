@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='ISO-8859-1' ?>
 <!DOCTYPE helpset PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp HelpSet Version 2.0//EN" "http://java.sun.com/products/javahelp/helpset_2_0.dtd">
 
-<!-- HelpSet auto-generated on Fri Apr 23 16:35:00 CEST 2021 -->
+<!-- HelpSet auto-generated on Tue Apr 27 14:07:01 CEST 2021 -->
 <helpset version="2.0">
 	<title>FindVMDetection HelpSet</title>
 	<maps>

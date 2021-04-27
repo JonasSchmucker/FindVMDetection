@@ -22,6 +22,8 @@ package findvmdetection;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,10 +49,11 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	private static final String ANALYSER_NAME = "Find VM Detection";
 	private static final String NO_STRATEGY_SELECTED = "No Strategy / Strategies selected";
 	private static final String ANALYZER_WAS_CANCELLED_PER_USER_REQUEST = "Analyzer was cancelled per user request";
-	private final static String OPTION_ONE_NAME = "Path to suspicious Mnemonics csv";
-	private final static String HOVER_OPTION_ONE_TEXT = "Path to suspicious Mnemonics csv";
-	private final static String DEFAULT_PATH_TO_CSV = "C:\\Users\\jonas\\git\\FindVMDetection\\FindVMDetection\\src\\main\\resources\\testMnemonic.csv";
-	private final static File DEFAULT_CSV_FILE = new File(DEFAULT_PATH_TO_CSV);
+//	private final static String OPTION_ONE_NAME = "Path to suspicious Mnemonics csv";
+//	private final static String HOVER_OPTION_ONE_TEXT = "Path to suspicious Mnemonics csv";
+	private final static Path DEFAULT_PATH_TO_CSV = Paths.get(System.getProperty("user.dir"))
+			.resolve("src").resolve("main").resolve("resources").resolve("suspiciousMnemonic.csv");
+	private final static File DEFAULT_CSV_FILE = DEFAULT_PATH_TO_CSV.toFile();
 	private final static int STRATEGY_COUNT = 9;
 	private final static String [] STRATEGY_NAMES = {
 			"CPU Instruction Analysis",
@@ -77,6 +80,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 				AnalyzerType.INSTRUCTION_ANALYZER
 			);
 
+		csvFile = DEFAULT_CSV_FILE;
 		Arrays.fill(strategyToRun, true);
 		strategyToRun[1] = false; // not yet implemented
 		strategyToRun[2] = false; // not yet implemented
@@ -158,13 +162,13 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public void registerOptions(Options options, Program program) {
-		options.registerOption(
+		/**options.registerOption(
 					OPTION_ONE_NAME, 
 					OptionType.FILE_TYPE, 
 					DEFAULT_CSV_FILE,
 					null,
 					HOVER_OPTION_ONE_TEXT
-				);
+				);*/
 		
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			options.registerOption(
@@ -179,7 +183,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public void optionsChanged(Options options, Program program) {
-		csvFile = options.getFile(OPTION_ONE_NAME, DEFAULT_CSV_FILE);
+		//csvFile = options.getFile(OPTION_ONE_NAME, DEFAULT_CSV_FILE);
 		
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			strategyToRun[i] = options.getBoolean(STRATEGY_NAMES[i], strategyToRun[i]);
