@@ -12,8 +12,8 @@ import ghidra.util.task.TaskMonitor;
 public class FindVMDetectionUserComputerNamesStrategy extends FindVMDetectionAnalyzingStrategyAbstract {
 
 	public FindVMDetectionUserComputerNamesStrategy(Program program, AddressSetView set, TaskMonitor monitor,
-			MessageLog log) {
-		super(program, set, monitor, log);
+			MessageLog log, String strategyName) {
+		super(program, set, monitor, log, strategyName);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -13,8 +13,8 @@ import ghidra.util.task.TaskMonitor;
 public class FindVMDetectionFilesDirectorysStrategy  extends FindVMDetectionAnalyzingStrategyAbstract {
 
 	public FindVMDetectionFilesDirectorysStrategy(Program program, AddressSetView set, TaskMonitor monitor,
-			MessageLog log) {
-		super(program, set, monitor, log);
+			MessageLog log, String strategyName) {
+		super(program, set, monitor, log, strategyName);
 		// TODO Auto-generated constructor stub
 	}
 

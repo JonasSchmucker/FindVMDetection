@@ -18,9 +18,6 @@ import ghidra.util.task.TaskMonitor;
  *
  */
 public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyzingStrategyAbstract{
-
-	private final static int MAX_DISTANCE_FOR_JUMP = 1000; //Searches this many Instructions after a suspicious instruction is found
-	private final static int EOL_COMMENT = 0; //Code for EOL-Comment
 	
 	private final Listing listing;
 	private InstructionIterator instructions;
@@ -31,8 +28,8 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	
 	private final List<String> suspiciousInstructions; 
 	
-	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions){
-		super(program, set, monitor, log);
+	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions, String strategyName){
+		super(program, set, monitor, log, strategyName);
 		this.suspiciousInstructions = suspiciousInstructions;
 		listing = program.getListing();
 		instructions = listing.getInstructions(set, true);
@@ -44,9 +41,9 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	 */
 	public boolean step() {
 		if(!instructions.hasNext()) {
-			log.appendMsg("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
+			printMessage("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
 			if(!addressesOfOccurences.isEmpty()) {
-				log.appendMsg("First at: " + addressesOfOccurences.get(0).toString());
+				printMessage("First at: " + addressesOfOccurences.get(0).toString());
 			}
 			return false;
 		}
@@ -80,25 +77,5 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	 */
 	private boolean isSuspiciousInstruction(Instruction inst) {
 		return suspiciousInstructions.contains(inst.getMnemonicString());
-	}
-	
-	/**
-	 * 
-	 * @param suspiciousInstrution the Instruction from where the next conditional jump is seeked, max is {@code MAX_DISTANCE_FOR_JUMP}
-	 * @return the next conditional jump, null if  not found
-	 */
-	private Instruction seekToNextConditionalJump(Instruction suspiciousInstrution) {
-		int currentDistance = 0;
-		Instruction inst = suspiciousInstrution;
-		
-		while(inst.isFallthrough() && currentDistance < MAX_DISTANCE_FOR_JUMP) {
-			inst= inst.getNext();
-		}
-		
-		if(currentDistance != MAX_DISTANCE_FOR_JUMP) {
-			return inst;
-		}
-		
-		return null;
 	}
 }

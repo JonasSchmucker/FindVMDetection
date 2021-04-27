@@ -85,7 +85,6 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		strategyToRun[5] = false; // not yet implemented
 		strategyToRun[6] = false; // not yet implemented
 		strategyToRun[7] = false; // not yet implemented
-		strategyToRun[8] = false; // not yet implemented
 	}
  
 	@Override
@@ -197,31 +196,31 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	 */
 	private void populateStrategyQueue(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions) {
 		if(strategyToRun[0]) {
-			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, suspiciousInstructions));
+			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, suspiciousInstructions, STRATEGY_NAMES[0]));
 		}
 		if(strategyToRun[1]){
-			queuedStrategies.add(new FindVMDetectionUserComputerNamesStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionUserComputerNamesStrategy(program, set, monitor, log, STRATEGY_NAMES[1]));
 		}
 		if(strategyToRun[2]){
-			queuedStrategies.add(new FindVMDetectionRunningProcessesStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionRunningProcessesStrategy(program, set, monitor, log, STRATEGY_NAMES[2]));
 		}
 		if(strategyToRun[3]){
-			queuedStrategies.add(new FindVMDetectionRunningServicesStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionRunningServicesStrategy(program, set, monitor, log, STRATEGY_NAMES[3]));
 		}
 		if(strategyToRun[4]){
-			queuedStrategies.add(new FindVMDetectionLoadedModulesMemoryScanningStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionLoadedModulesMemoryScanningStrategy(program, set, monitor, log, STRATEGY_NAMES[4]));
 		}
 		if(strategyToRun[5]){
-			queuedStrategies.add(new FindVMDetectionLoadedDriversDevicesStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionLoadedDriversDevicesStrategy(program, set, monitor, log, STRATEGY_NAMES[5]));
 		}
 		if(strategyToRun[6]){
-			queuedStrategies.add(new FindVMDetectionFilesDirectorysStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionFilesDirectorysStrategy(program, set, monitor, log, STRATEGY_NAMES[6]));
 		}
 		if(strategyToRun[7]){
-			queuedStrategies.add(new FindVMDetectionRegistryKeyValuesStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionRegistryKeyValuesStrategy(program, set, monitor, log, STRATEGY_NAMES[7]));
 		}
 		if(strategyToRun[8]){
-			queuedStrategies.add(new FindVMDetectionMutexSemaphoresPortsStrategy(program, set, monitor, log));
+			queuedStrategies.add(new FindVMDetectionMutexSemaphoresPortsStrategy(program, set, monitor, log, STRATEGY_NAMES[8]));
 		}
 	}
 }
