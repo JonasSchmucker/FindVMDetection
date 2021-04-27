@@ -68,13 +68,12 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			);
 		
 		Arrays.fill(strategyToRun, true);
-		strategyToRun[1] = false; // not yet implemented
-		strategyToRun[2] = false; // not yet implemented
-		strategyToRun[3] = false; // not yet implemented
-		strategyToRun[4] = false; // not yet implemented
-		strategyToRun[5] = false; // not yet implemented
-		strategyToRun[6] = false; // not yet implemented
-		strategyToRun[7] = false; // not yet implemented
+		strategyToRun[1] = false; // not yet implemented "User and Computer Names Analysis",
+		strategyToRun[2] = false; // not yet implemented "Running Processes Analysis",
+		strategyToRun[3] = false; // not yet implemented "Running Services Analysis",
+		strategyToRun[4] = false; // not yet implemented "Loaded Modules and Memory Analysis",
+		strategyToRun[5] = false; // not yet implemented "Loaded Drivers and Devices Analysis",
+		strategyToRun[7] = false; // not yet implemented "Registry Keys Analysis",
 	}
  
 	@Override
@@ -136,6 +135,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public void registerOptions(Options options, Program program) {		
+		//options.removeOption("Path to suspicious Mnemonics csv");
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			options.registerOption(
 					STRATEGY_NAMES[i],

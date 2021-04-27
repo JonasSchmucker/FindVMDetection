@@ -71,4 +71,6 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	protected void printMessage(String msg) {
 		log.appendMsg(strategyName + ": " + msg);
 	}
+	
+	
 }

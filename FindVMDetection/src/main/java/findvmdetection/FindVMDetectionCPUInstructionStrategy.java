@@ -35,7 +35,7 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 		instructions = listing.getInstructions(set, true);
 
 		csvFile = Paths.get(System.getProperty("user.dir"))
-					.resolve("src").resolve("main").resolve("resources").resolve("suspiciousMnemonic.csv")
+					.resolve("src").resolve("main").resolve("resources").resolve("suspiciousMnemonics.csv")
 					.toFile();
 	}
 
