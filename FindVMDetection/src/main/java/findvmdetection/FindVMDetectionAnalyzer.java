@@ -20,10 +20,6 @@
 
 package findvmdetection;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +36,6 @@ import ghidra.util.task.TaskMonitor;
 
 /**
  * Finds where Malware might detected a VM, and shows alternative behaviours for Host and VM
- * @author Jonas Schmucker
  *
  */
 public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
@@ -49,11 +44,6 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	private static final String ANALYSER_NAME = "Find VM Detection";
 	private static final String NO_STRATEGY_SELECTED = "No Strategy / Strategies selected";
 	private static final String ANALYZER_WAS_CANCELLED_PER_USER_REQUEST = "Analyzer was cancelled per user request";
-//	private final static String OPTION_ONE_NAME = "Path to suspicious Mnemonics csv";
-//	private final static String HOVER_OPTION_ONE_TEXT = "Path to suspicious Mnemonics csv";
-	private final static Path DEFAULT_PATH_TO_CSV = Paths.get(System.getProperty("user.dir"))
-			.resolve("src").resolve("main").resolve("resources").resolve("suspiciousMnemonic.csv");
-	private final static File DEFAULT_CSV_FILE = DEFAULT_PATH_TO_CSV.toFile();
 	private final static int STRATEGY_COUNT = 9;
 	private final static String [] STRATEGY_NAMES = {
 			"CPU Instruction Analysis",
@@ -70,17 +60,13 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	
 	private List<FindVMDetectionAnalyzingStrategyAbstract> queuedStrategies = new ArrayList<>();
 	private boolean [] strategyToRun = new boolean [STRATEGY_COUNT];
-	private File csvFile;
 
 	public FindVMDetectionAnalyzer() {
-
-
 		super(ANALYSER_NAME,
 				ANALYSER_SHORT_DESCRIPTION,
 				AnalyzerType.INSTRUCTION_ANALYZER
 			);
-
-		csvFile = DEFAULT_CSV_FILE;
+		
 		Arrays.fill(strategyToRun, true);
 		strategyToRun[1] = false; // not yet implemented
 		strategyToRun[2] = false; // not yet implemented
@@ -112,29 +98,17 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	@Override
 	public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log)
 			throws CancelledException {
-
-		FindVMDetectionCSVLoader csvLoader = new FindVMDetectionCSVLoader(csvFile);
 		
-		List<String> suspiciousInstructions;
-		
-		try {
-			suspiciousInstructions = csvLoader.getSuspiciousInstructions();
-		}
-		catch(IOException e) {
-			log.appendMsg("Error while loading " + csvFile.getAbsolutePath());
-			throw new CancelledException("Error while loading " + csvFile.getAbsolutePath());
-		}
-		
-		if(suspiciousInstructions.isEmpty()) {
-			log.appendMsg("Empyty .csv File at " + csvFile.getAbsolutePath());
-			throw new CancelledException("Empyty .csv File at " + csvFile.getAbsolutePath());
-		}
-		
-		populateStrategyQueue(program, set, monitor, log, suspiciousInstructions);
+		populateStrategyQueue(program, set, monitor, log);
 		
 		if(queuedStrategies.isEmpty()) {
+			log.appendMsg(NO_STRATEGY_SELECTED);
 			CancelledException e = new CancelledException(NO_STRATEGY_SELECTED);
 			throw e;
+		}
+	
+		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
+			strategy.init();
 		}
 		
 		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
@@ -161,15 +135,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	}
 
 	@Override
-	public void registerOptions(Options options, Program program) {
-		/**options.registerOption(
-					OPTION_ONE_NAME, 
-					OptionType.FILE_TYPE, 
-					DEFAULT_CSV_FILE,
-					null,
-					HOVER_OPTION_ONE_TEXT
-				);*/
-		
+	public void registerOptions(Options options, Program program) {		
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			options.registerOption(
 					STRATEGY_NAMES[i],
@@ -183,8 +149,6 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public void optionsChanged(Options options, Program program) {
-		//csvFile = options.getFile(OPTION_ONE_NAME, DEFAULT_CSV_FILE);
-		
 		for(int i = 0; i < STRATEGY_COUNT; i++) {
 			strategyToRun[i] = options.getBoolean(STRATEGY_NAMES[i], strategyToRun[i]);
 		}
@@ -198,9 +162,9 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 	 * @param log
 	 * @param suspiciousInstructions
 	 */
-	private void populateStrategyQueue(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, List<String> suspiciousInstructions) {
+	private void populateStrategyQueue(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log) {
 		if(strategyToRun[0]) {
-			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, suspiciousInstructions, STRATEGY_NAMES[0]));
+			queuedStrategies.add(new FindVMDetectionCPUInstructionStrategy(program, set, monitor, log, STRATEGY_NAMES[0]));
 		}
 		if(strategyToRun[1]){
 			queuedStrategies.add(new FindVMDetectionUserComputerNamesStrategy(program, set, monitor, log, STRATEGY_NAMES[1]));

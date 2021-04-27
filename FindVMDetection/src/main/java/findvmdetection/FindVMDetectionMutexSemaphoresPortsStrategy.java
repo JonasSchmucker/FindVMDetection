@@ -13,6 +13,7 @@ import ghidra.program.model.listing.InstructionIterator;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.scalar.Scalar;
+import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
 /**
@@ -114,6 +115,14 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 			
 		}
 		return false;
+	}
+
+
+
+	@Override
+	public void init() throws CancelledException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

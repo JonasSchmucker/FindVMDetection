@@ -4,6 +4,7 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Program;
+import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
 /**
@@ -37,6 +38,11 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	 * @return false to terminate this strategy
 	 */
 	public abstract boolean step();
+	
+	/**
+	 * Init function called after constructor
+	 */
+	public abstract void init() throws CancelledException;
 	
 	/**
 	 * 
