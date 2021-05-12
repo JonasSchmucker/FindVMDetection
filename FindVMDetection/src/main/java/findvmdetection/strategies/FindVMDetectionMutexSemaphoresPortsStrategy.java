@@ -23,16 +23,13 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 	
 	private final Listing listing;
 	private InstructionIterator instructions;
-	private Instruction currentInstruction;
-	private int suspiciousOccurrencesFound = 0;
-	private Address [] jumpTargets;
-	private List<Address> addressesOfOccurences = new ArrayList<>();
 	private static final String IN_MNEMONIC = "IN";
 	private static final String MOV_MNEMONIC = "MOV";
 	private final static int MAX_DISTANCE_FOR_LITERAL_SET = 10; //Searches this many Instructions before after a Port reading instruction is found
 	
 	private final Long VM_WARE_PORT = 0x5658L; // 'VX'
 	private final Long VM_WARE_MAGIC_VALUE = 0x564D5868L; // 'VMXh'
+	private boolean jsonAnalysisRunning = true;
 	
 	
 	
@@ -45,6 +42,10 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 
 
 	public boolean step() {
+		if(jsonAnalysisRunning ) {
+			jsonAnalysisRunning &= super.step();
+			return true;
+		}
 		if(!instructions.hasNext()) {
 			return false;
 		}	
@@ -119,16 +120,6 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 		super.init();
 		// TODO Auto-generated method stub
 		
-	}
-
-
-
-	@Override
-	public void printResults() {
-		printMessage("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
-		if(!addressesOfOccurences.isEmpty()) {
-			printMessage("First at: " + addressesOfOccurences.get(0).toString());
-		}
 	}
 
 }

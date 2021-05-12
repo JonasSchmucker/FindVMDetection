@@ -1,20 +1,6 @@
 {
 	"rules": [
-		{
-			"DLL_Name": "",
-			"Functions": [
-				{
-					"FunctionName": "",
-					"forbiddenParams":[
-						{
-							"paramOrdinal": 0,
-							"paramType": "integer",
-							"forbiddenValue": "0"
-						}
-					]
-				}
-			]
-		}
+		
 	],
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"properties": {

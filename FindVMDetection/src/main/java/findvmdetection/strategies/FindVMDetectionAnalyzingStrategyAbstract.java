@@ -8,18 +8,28 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import findvmdetection.ruleJsonData.DLLRulesData;
+import findvmdetection.ruleJsonData.FunctionRulesData;
+import findvmdetection.ruleJsonData.ParameterRulesData;
 import findvmdetection.util.FindVMDetectionConstantUseFinder;
 import findvmdetection.util.FindVMDetectionRulesData;
+import findvmdetection.util.FindVMDetectionConstantUseFinder.ConstUseLocation;
 import generic.json.JSONError;
 import generic.json.JSONParser;
 import generic.json.JSONToken;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.OperatingSystem;
+import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.symbol.ExternalLocation;
+import ghidra.program.model.symbol.ExternalLocationIterator;
+import ghidra.program.model.symbol.ExternalManager;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
@@ -39,6 +49,18 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	protected FindVMDetectionRulesData rules;
 	static OperatingSystem os;
 	File jsonRuleFile;
+
+	Function currentFunction;
+	ExternalManager externalManager;
+	ExternalLocationIterator extLocIter;
+	
+
+	Iterator<DLLRulesData> dllRuleIterator;
+	DLLRulesData currentDLLRule;
+	Instruction currentInstruction;
+	int suspiciousOccurrencesFound = 0;
+	Address [] jumpTargets;
+	List<Address> addressesOfOccurences = new ArrayList<>();
 	
 	protected final static int EOL_COMMENT = 0; //Code for EOL-Comment
 	
@@ -57,13 +79,68 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	 * Atomic step of the Analyzing Strategy, Analyzing process may be cancelled in between steps
 	 * @return false to terminate this strategy
 	 */
-	public abstract boolean step();
+	public boolean step() {
+		constantUseFinder.reset();
+		constantUseFinder.signInStrategy(this);
+		constantUseFinder.initialiseDecompiler();
+		if(dllRuleIterator.hasNext()) {
+			currentDLLRule = dllRuleIterator.next();
+			if(!usesKernerExternalLibrary(currentDLLRule.dllName)) {
+				return true;
+			}
+			extLocIter = externalManager.getExternalLocations(currentDLLRule.dllName);
+			for(ExternalLocation currentExtLoc : getIterableFromIterator(extLocIter)){
+				if(monitor.isCancelled()) {
+					return false;
+				}
+				if(!currentExtLoc.isFunction()) {
+					continue;
+				}
+				
+				currentFunction = currentExtLoc.getFunction();
+				for(FunctionRulesData currentFunctionRule : currentDLLRule.functions) {
+					if(monitor.isCancelled()) {
+						return false;
+					}
+					if(currentFunction.getName().compareToIgnoreCase(currentFunctionRule.functionName) == 0) {
+						for(ParameterRulesData currentParameterRule : currentFunctionRule.parameters) {
+							Address suspectedVMDetectionAddress = checkAgainstRules(currentFunction, currentParameterRule);
+							if(suspectedVMDetectionAddress  != null) {
+								suspiciousOccurrencesFound++;
+								
+								addressesOfOccurences.add(suspectedVMDetectionAddress);
+								currentInstruction = program.getListing().getInstructionAt(suspectedVMDetectionAddress);
+								currentInstruction.setComment(EOL_COMMENT, "Might be used to distiguish between VM and Host");
+								
+								Instruction nextConditionalJump = seekToNextConditionalJump(currentInstruction);
+								
+								if(nextConditionalJump != null) {
+									
+									nextConditionalJump.setComment(EOL_COMMENT, "Might be the conditional jump determining VM behaviour");
+									jumpTargets = nextConditionalJump.getFlows();
+									
+									for(Address target : jumpTargets) {
+										program.getListing().setComment(target, EOL_COMMENT, "Might be entry point for alternative VM behaviour");
+									}
+									nextConditionalJump.getNext().setComment(EOL_COMMENT, "Might be entry point for alternative VM behaviour");
+								}
+							}
+						}
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Init function called after constructor
 	 */
 	public void init() throws CancelledException{
 		loadRules();
+		dllRuleIterator = rules.dlls.iterator();
+		externalManager = program.getExternalManager();
 	}
 	
 	/**
@@ -208,7 +285,114 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 		FindVMDetectionAnalyzingStrategyAbstract.os = os;
 	} 
 	
-	public abstract void printResults();
+	public void printResults() {
+		printMessage("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
+		if(!addressesOfOccurences.isEmpty()) {
+			printMessage("First at: " + addressesOfOccurences.get(0).toString());
+		}
+	}
+	
+	public boolean usesKernerExternalLibrary(String name) {
+		return externalManager.getExternalLibrary(name) != null;
+	}
+	
+	public static <T> Iterable<T> getIterableFromIterator(Iterator<T> iterator)
+    {
+        return new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator()
+            {
+                return iterator;
+            }
+        };
+    }
+
+	protected Address checkAgainstRules(Function f, ParameterRulesData paramRule) {
+		constantUseFinder.reset();
+		constantUseFinder.signInStrategy(this);
+		constantUseFinder.initialiseDecompiler();
+		if(paramRule.paramType.compareToIgnoreCase("stringPointer") == 0) {
+			return checkAgainstStringRules(f, paramRule);
+		}
+		else if(paramRule.paramType.compareToIgnoreCase("integer") == 0) {
+			return checkAgainstIntegerRules(f, paramRule);
+		}
+		else {
+			printMessage("ERROR in file");
+		}
+		return null;
+	}
+
+	private Address checkAgainstStringRules(Function f, ParameterRulesData paramRule) {
+		try {
+			constantUseFinder.backtrackParamToConstant(currentFunction, paramRule.paramOrdinal);
+		}
+		catch(CancelledException e) {
+			return null;
+		}
+		
+		for(ConstUseLocation constLoc : constantUseFinder.constUses) {
+			String constString = getStringFromConstUseLocation(constLoc);
+			if(constString != null) {
+				if( isForbiddenStringInConstant(paramRule, constString)) {
+					return constLoc.getAddress();
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean isForbiddenStringInConstant(ParameterRulesData paramRule, String constantString) {
+		if(paramRule.forbiddenValue.contains(constantString) || constantString.contains(paramRule.forbiddenValue)) { 
+			return true;
+		}
+		return false;
+	}
+
+	private Address checkAgainstIntegerRules(Function f, ParameterRulesData paramRule) {
+		try {
+			constantUseFinder.backtrackParamToConstant(currentFunction, paramRule.paramOrdinal);
+		}
+		catch(CancelledException e) {
+			return null;
+		}
+		
+		for(ConstUseLocation constLoc : constantUseFinder.constUses) {
+			Integer constInt = getIntegerFromConstUseLocation(constLoc);
+			if(constInt != null) {
+				if( isForbiddenIntegerInConstant(paramRule, constInt)) {
+					return constLoc.getAddress();
+				}
+			}
+		}
+		return null;
+	}
+	
+	private Integer getIntegerFromConstUseLocation(ConstUseLocation constLoc) {
+		if(constLoc.getConstValue() != null && constLoc.getAddress() != null) {
+			return (Integer) program.getListing()
+						.getDataAt(
+								constLoc.getAddress().getNewAddress(constLoc.getConstValue())
+						).getValue();
+		}
+		return null;
+	}
+
+	private boolean isForbiddenIntegerInConstant(ParameterRulesData paramRule, int constInt) {
+		return Integer.parseInt(paramRule.forbiddenValue) == constInt;
+	}
+
+	private String getStringFromConstUseLocation(ConstUseLocation constLoc) {
+		if(constLoc.getConstValue() != null && constLoc.getAddress() != null) {
+			return program.getListing()
+						.getDataAt(
+								constLoc.getAddress().getNewAddress(
+										constLoc.getConstValue()
+								)
+						).getDefaultValueRepresentation();
+		}
+		return null;
+	}
 	
 	
 }

@@ -3,7 +3,6 @@ package findvmdetection.strategies;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import findvmdetection.util.FindVMDetectionCSVLoader;
@@ -22,11 +21,8 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	
 	private final Listing listing;
 	private InstructionIterator instructions;
-	private Instruction currentInstruction;
-	private int suspiciousOccurrencesFound = 0;
-	private Address [] jumpTargets;
-	private List<Address> addressesOfOccurences = new ArrayList<>();
 	private File csvFile;
+	private boolean jsonAnalysisRunning = true;
 	
 	private List<String> suspiciousInstructions; 
 	
@@ -45,6 +41,10 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	 * @return false to terminate this strategy
 	 */
 	public boolean step() {
+		if(jsonAnalysisRunning) {
+			jsonAnalysisRunning &= super.step();
+			return true;
+		}
 		if(!instructions.hasNext()) {
 			return false;
 		}
@@ -98,13 +98,5 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 			throw new CancelledException("Empyty .csv File at " + csvFile.getAbsolutePath());
 		}
 		
-	}
-
-	@Override
-	public void printResults() {
-		printMessage("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
-		if(!addressesOfOccurences.isEmpty()) {
-			printMessage("First at: " + addressesOfOccurences.get(0).toString());
-		}
 	}
 }
