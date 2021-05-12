@@ -24,9 +24,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import findvmdetection.strategies.FindVMDetectionAnalyzingStrategyAbstract;
+import findvmdetection.strategies.FindVMDetectionCPUInstructionStrategy;
+import findvmdetection.strategies.FindVMDetectionFilesDirectorysStrategy;
+import findvmdetection.strategies.FindVMDetectionLoadedDriversDevicesStrategy;
+import findvmdetection.strategies.FindVMDetectionLoadedModulesMemoryScanningStrategy;
+import findvmdetection.strategies.FindVMDetectionMutexSemaphoresPortsStrategy;
+import findvmdetection.strategies.FindVMDetectionRegistryKeyValuesStrategy;
+import findvmdetection.strategies.FindVMDetectionRunningProcessesStrategy;
+import findvmdetection.strategies.FindVMDetectionRunningServicesStrategy;
+import findvmdetection.strategies.FindVMDetectionUserComputerNamesStrategy;
 import ghidra.app.services.AbstractAnalyzer;
 import ghidra.app.services.AnalyzerType;
 import ghidra.app.util.importer.MessageLog;
+import ghidra.framework.OperatingSystem;
 import ghidra.framework.options.OptionType;
 import ghidra.framework.options.Options;
 import ghidra.program.model.address.AddressSetView;
@@ -68,12 +79,14 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			);
 		
 		Arrays.fill(strategyToRun, true);
-		strategyToRun[1] = false; // not yet implemented "User and Computer Names Analysis",
-		strategyToRun[2] = false; // not yet implemented "Running Processes Analysis",
-		strategyToRun[3] = false; // not yet implemented "Running Services Analysis",
-		strategyToRun[4] = false; // not yet implemented "Loaded Modules and Memory Analysis",
-		strategyToRun[5] = false; // not yet implemented "Loaded Drivers and Devices Analysis",
-		strategyToRun[7] = false; // not yet implemented "Registry Keys Analysis",
+		strategyToRun[0] = true; // "CPU Instruction Analysiss",
+		strategyToRun[1] = true; // not yet implemented "User and Computer Names Analysis",
+		strategyToRun[2] = true; // not yet implemented "Running Processes Analysis",
+		strategyToRun[3] = true; // not yet implemented "Running Services Analysis",
+		strategyToRun[4] = true; // not yet implemented "Loaded Modules and Memory Analysis",
+		strategyToRun[5] = true; // "Loaded Drivers and Devices Analysis",
+		strategyToRun[6] = true; // "Files and Directorys Analysis",
+		strategyToRun[7] = true; // not yet implemented "Registry Keys Analysis",
 	}
  
 	@Override
@@ -105,7 +118,8 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			CancelledException e = new CancelledException(NO_STRATEGY_SELECTED);
 			throw e;
 		}
-	
+		
+		FindVMDetectionAnalyzingStrategyAbstract.setOs(OperatingSystem.WINDOWS); //TODO automatic os read
 		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
 			strategy.init();
 		}
@@ -119,10 +133,8 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			while(strategy.step() && !monitor.isCancelled()) {}
 			
 		}
-
-		if(monitor.isCancelled()) {
-			CancelledException e = new CancelledException(ANALYZER_WAS_CANCELLED_PER_USER_REQUEST);
-			throw e;
+		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
+			strategy.printResults();
 		}
 		
 		return true; //Analysis should have succeeded if this is reached
