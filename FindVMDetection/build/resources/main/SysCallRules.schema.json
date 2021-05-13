@@ -1,0 +1,57 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"properties": {
+		"rules": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"DLL_Name": {
+						"type": "string"
+					},
+					"Functions": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"FunctionName": {
+									"type": "string"
+								},
+								"forbiddenParams": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties":{
+											"paramOrdinal": {
+												"type": "integer",
+      											"exclusiveMinimum": -1
+											},
+											"paramType": {
+												"type": "string",
+      											"enum": [
+													  "stringPointer", "integer"
+													]
+											}
+										},
+										"required": [
+											"paramOrdinal", "paramType"
+										]
+									}
+								}
+							},
+							"required": [
+								"FunctionName", "forbiddenParams"
+							]
+						}
+					}
+				},
+				"required": [
+					"DLL_Name", "Functions"
+				]
+			}
+		}
+	},
+	"required": [
+		"rules"
+	]
+}

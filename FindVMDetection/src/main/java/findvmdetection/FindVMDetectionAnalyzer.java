@@ -37,7 +37,7 @@ import findvmdetection.strategies.FindVMDetectionUserComputerNamesStrategy;
 import ghidra.app.services.AbstractAnalyzer;
 import ghidra.app.services.AnalyzerType;
 import ghidra.app.util.importer.MessageLog;
-import ghidra.framework.OperatingSystem;
+import ghidra.framework.Platform;
 import ghidra.framework.options.OptionType;
 import ghidra.framework.options.Options;
 import ghidra.program.model.address.AddressSetView;
@@ -119,7 +119,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			throw e;
 		}
 		
-		FindVMDetectionAnalyzingStrategyAbstract.setOs(OperatingSystem.WINDOWS); //TODO automatic os read
+		FindVMDetectionAnalyzingStrategyAbstract.setOs(Platform.CURRENT_PLATFORM.getOperatingSystem()); //TODO automatic os read
 		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
 			strategy.init();
 		}
