@@ -8,7 +8,143 @@
 					"forbiddenParams": [
 						{
 							"paramOrdinal": 0,
-							"forbiddenValue": "testFile",
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\Vmmouse.sys",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vm3dgl.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vmdum.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vm3dver.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vmtray.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VMToolsHook.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vmmousever.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vmhgfs.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\vmGuestLib.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VmGuestLibJava.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Driversvmhgfs.dll",
+							"paramType": "stringPointer"
+						},
+						
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VBoxMouse.sys",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VBoxGuest.sys",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VBoxSF.sys",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\Drivers\\VBoxVideo.sys",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxdisp.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxhook.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxmrxnp.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxogl.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglarrayspu.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglcrutil.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglerrorspu.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglfeedbackspu.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglpackspu.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxoglpassthroughspu.dll",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxservice.exe",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\vboxtray.exe",
+							"paramType": "stringPointer"
+						},
+						{
+							"paramOrdinal": 0,
+							"forbiddenValue": "C:\\windows\\System32\\VBoxControl.exe",
 							"paramType": "stringPointer"
 						}
 					]

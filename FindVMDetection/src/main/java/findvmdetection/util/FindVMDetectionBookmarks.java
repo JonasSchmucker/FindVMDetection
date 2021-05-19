@@ -25,19 +25,17 @@ public class FindVMDetectionBookmarks {
 	private BookmarkManager bookmarkManager;
 	public ImageIcon vmIcon;
 	private File iconFile;
-	private boolean verbose;
 	private FindVMDetectionAnalyzer findVMDetectionAnalyzer;
 	
 	private Map<String, Integer> strategyNameToFoundOccurences = new HashMap<>();
 	
 	
 	
-	public FindVMDetectionBookmarks(BookmarkManager bookmarkManager, boolean verbose, FindVMDetectionAnalyzer findVMDetectionAnalyzer) {
+	public FindVMDetectionBookmarks(BookmarkManager bookmarkManager, FindVMDetectionAnalyzer findVMDetectionAnalyzer) {
 		this.findVMDetectionAnalyzer = findVMDetectionAnalyzer;
-		this.verbose = verbose;
 		this.bookmarkManager = bookmarkManager;
 		iconFile = Paths.get(System.getProperty("user.dir"))
-				.resolve("src").resolve("main").resolve("resources").resolve("vm.ico")
+				.resolve("src").resolve("main").resolve("resources").resolve("vm.png")
 				.toFile();
 	}
 	
@@ -59,7 +57,8 @@ public class FindVMDetectionBookmarks {
 	
 	public void printResults() {
 		for(FindVMDetectionAnalyzingStrategyAbstract strategy: findVMDetectionAnalyzer.queuedStrategies) {
-			strategy.printMessage("Found " + strategyNameToFoundOccurences.get(strategy.strategyName) + " Occurences", false);
+			Integer numberOfOccurences = strategyNameToFoundOccurences.get(strategy.strategyName);
+			strategy.printMessage("Found " + (numberOfOccurences == null ? 0 : numberOfOccurences) + " Occurences", false);
 		}
 	}
 }

@@ -427,8 +427,6 @@ public class FindVMDetectionConstantUseFinder {
 						try {
 							value = applyDefUseList(value, defUseList);
 							constUse.put(instr.getAddress(), value);
-							currentUser.printMessage("   " + f.getName() + "    " + instr.getAddress() + " : 0x" +
-								Long.toHexString(value), false);
 						}
 						catch (InvalidInputException exc) {
 							// do nothing
@@ -537,9 +535,7 @@ public class FindVMDetectionConstantUseFinder {
 						value = applyDefUseList(value, defUseList);
 						constUse.put(remapAddress(funcEntry, def.getOutput().getPCAddress()),
 							value);
-						currentUser.printMessage("   " + function.getName() + "    " +
-							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value), false);
-					}
+						}
 					catch (InvalidInputException exc) {
 						// Do nothing
 					}
@@ -648,8 +644,6 @@ public class FindVMDetectionConstantUseFinder {
 						value = applyDefUseList(value, defUseList);
 						constUse.put(remapAddress(funcEntry, def.getOutput().getPCAddress()),
 							value);
-						currentUser.printMessage("   " + function.getName() + "    " +
-							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value), false);
 					}
 					catch (InvalidInputException exc) {
 						// Do nothing

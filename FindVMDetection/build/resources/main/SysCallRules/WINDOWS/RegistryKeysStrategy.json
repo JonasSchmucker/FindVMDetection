@@ -1,15 +1,35 @@
 {
 	"rules": [
 		{
-			"DLL_Name": "",
+			"DLL_Name": "Advapi32.lib",
 			"Functions": [
 				{
-					"FunctionName": "",
+					"FunctionName": "RegOpenKeyExW",
 					"forbiddenParams":[
 						{
-							"paramOrdinal": 0,
-							"paramType": "integer",
-							"forbiddenValue": "0"
+							"paramOrdinal": 1,
+							"paramType": "stringPointer",
+							"forbiddenValue": "HKLM\\SOFTWARE\\Vmware Inc.\\\\\\Vmware Tools"
+						},
+						{
+							"paramOrdinal": 1,
+							"paramType": "stringPointer",
+							"forbiddenValue": "HKEY_LOCAL_MACHINE\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 2\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0\\Identifier"
+						},
+						{
+							"paramOrdinal": 1,
+							"paramType": "stringPointer",
+							"forbiddenValue": "SYSTEM\\CurrentControlSet\\Enum\\SCSI\\Disk&Ven_VMware_&Prod_VMware_Virtual_S"
+						},
+						{
+							"paramOrdinal": 1,
+							"paramType": "stringPointer",
+							"forbiddenValue": "SYSTEM\\CurrentControlSet\\Control\\CriticalDeviceDatabase\\root#vmwvmcihostdev"
+						},
+						{
+							"paramOrdinal": 1,
+							"paramType": "stringPointer",
+							"forbiddenValue": "SYSTEM\\CurrentControlSet\\Control\\VirtualDeviceDrivers"
 						}
 					]
 				}

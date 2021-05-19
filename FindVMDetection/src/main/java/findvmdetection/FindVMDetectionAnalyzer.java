@@ -115,7 +115,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 			throws CancelledException {
 
 		
-		FindVMDetectionBookmarks vmBookmarks = new FindVMDetectionBookmarks(program.getBookmarkManager(), verbose, this);
+		FindVMDetectionBookmarks vmBookmarks = new FindVMDetectionBookmarks(program.getBookmarkManager(), this);
 		vmBookmarks.loadIcon();
 		
 		populateStrategyQueue(program, set, monitor, log, vmBookmarks);
@@ -145,6 +145,7 @@ public class FindVMDetectionAnalyzer extends AbstractAnalyzer {
 		for(FindVMDetectionAnalyzingStrategyAbstract strategy : queuedStrategies) {
 			strategy.printResults();
 		}
+		vmBookmarks.printResults();
 		
 		return true; //Analysis should have succeeded if this is reached
 	}
