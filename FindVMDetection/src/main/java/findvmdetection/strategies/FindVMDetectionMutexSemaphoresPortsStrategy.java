@@ -1,8 +1,6 @@
 package findvmdetection.strategies;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import findvmdetection.util.FindVMDetectionBookmarks;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressSetView;
@@ -33,8 +31,8 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 	
 	
 	
-	public FindVMDetectionMutexSemaphoresPortsStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, String strategyName) {
-		super(program, set, monitor, log, strategyName);
+	public FindVMDetectionMutexSemaphoresPortsStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, String strategyName, FindVMDetectionBookmarks bookmarks) {
+		super(program, set, monitor, log, strategyName, bookmarks);
 		listing = program.getListing();
 		instructions = listing.getInstructions(set, true);
 	}
@@ -51,9 +49,7 @@ public class FindVMDetectionMutexSemaphoresPortsStrategy extends FindVMDetection
 		}	
 		currentInstruction = instructions.next();
 		if(readsVMWarePort(currentInstruction)) {
-			suspiciousOccurrencesFound++;
-			
-			addressesOfOccurences.add(currentInstruction.getAddress());
+			bookmarks.setBookmark(currentInstruction.getAddress(), this);
 			currentInstruction.setComment(EOL_COMMENT, "Reads from VMWare Port 'VX'");
 			
 			Instruction nextConditionalJump = seekToNextConditionalJump(currentInstruction);

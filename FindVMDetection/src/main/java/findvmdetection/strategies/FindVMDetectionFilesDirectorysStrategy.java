@@ -1,5 +1,6 @@
 package findvmdetection.strategies;
 
+import findvmdetection.util.FindVMDetectionBookmarks;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.listing.Program;
@@ -17,8 +18,8 @@ public class FindVMDetectionFilesDirectorysStrategy  extends FindVMDetectionAnal
 	
 	
 	public FindVMDetectionFilesDirectorysStrategy(Program program, AddressSetView set, TaskMonitor monitor,
-			MessageLog log, String strategyName) {
-		super(program, set, monitor, log, strategyName);
+			MessageLog log, String strategyName, FindVMDetectionBookmarks bookmarks) {
+		super(program, set, monitor, log, strategyName, bookmarks);
 	}
 
 	@Override

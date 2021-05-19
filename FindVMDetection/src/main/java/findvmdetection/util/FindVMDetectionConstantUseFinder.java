@@ -428,7 +428,7 @@ public class FindVMDetectionConstantUseFinder {
 							value = applyDefUseList(value, defUseList);
 							constUse.put(instr.getAddress(), value);
 							currentUser.printMessage("   " + f.getName() + "    " + instr.getAddress() + " : 0x" +
-								Long.toHexString(value));
+								Long.toHexString(value), false);
 						}
 						catch (InvalidInputException exc) {
 							// do nothing
@@ -538,7 +538,7 @@ public class FindVMDetectionConstantUseFinder {
 						constUse.put(remapAddress(funcEntry, def.getOutput().getPCAddress()),
 							value);
 						currentUser.printMessage("   " + function.getName() + "    " +
-							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value));
+							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value), false);
 					}
 					catch (InvalidInputException exc) {
 						// Do nothing
@@ -559,8 +559,8 @@ public class FindVMDetectionConstantUseFinder {
 						offset = applyDefUseList(offset, defUseList);
 						constUse.put(remapAddress(funcEntry, def.getOutput().getPCAddress()),
 							offset);
-						currentUser.printMessage("   " + function.getName() + "    " +
-							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(offset));
+							currentUser.printMessage("   " + function.getName() + "    " +
+								def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(offset), false);
 					}
 					catch (InvalidInputException exc) {
 						// Do nothing
@@ -649,7 +649,7 @@ public class FindVMDetectionConstantUseFinder {
 						constUse.put(remapAddress(funcEntry, def.getOutput().getPCAddress()),
 							value);
 						currentUser.printMessage("   " + function.getName() + "    " +
-							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value));
+							def.getOutput().getPCAddress() + " : 0x" + Long.toHexString(value), false);
 					}
 					catch (InvalidInputException exc) {
 						// Do nothing
@@ -675,7 +675,7 @@ public class FindVMDetectionConstantUseFinder {
 		}
 
 		constUse.put(remapAddress(funcEntry, vnode.getPCAddress()), null);
-		currentUser.printMessage("   " + function.getName() + "    " + vnode.getPCAddress() + " : Lost");
+		currentUser.printMessage("   " + function.getName() + "    " + vnode.getPCAddress() + " : Lost", false);
 		// currentUser.printMessage("     Lost IT! " + vnode.getPCAddress());
 	}
 
@@ -704,7 +704,7 @@ public class FindVMDetectionConstantUseFinder {
 			}
 			currentUser.program.getFunctionManager().getFunctionContaining(reference.getFromAddress());
 			Address refAddr = reference.getFromAddress();
-			currentUser.printMessage("Write to global variable");
+			currentUser.printMessage("Write to global variable", false);
 		}
 
 		doneSet.add(seqnum);

@@ -14,6 +14,7 @@ import java.util.List;
 import findvmdetection.ruleJsonData.DLLRulesData;
 import findvmdetection.ruleJsonData.FunctionRulesData;
 import findvmdetection.ruleJsonData.ParameterRulesData;
+import findvmdetection.util.FindVMDetectionBookmarks;
 import findvmdetection.util.FindVMDetectionConstantUseFinder;
 import findvmdetection.util.FindVMDetectionRulesData;
 import findvmdetection.util.FindVMDetectionConstantUseFinder.ConstUseLocation;
@@ -44,9 +45,11 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	protected final AddressSetView set;
 	public final TaskMonitor monitor;
 	protected final MessageLog log;
-	protected final String strategyName;
+	public final String strategyName;
+	protected final FindVMDetectionBookmarks bookmarks;
 	static final FindVMDetectionConstantUseFinder constantUseFinder = new FindVMDetectionConstantUseFinder();
 	protected FindVMDetectionRulesData rules;
+	public boolean verbose;
 	static OperatingSystem os;
 	File jsonRuleFile;
 
@@ -58,20 +61,19 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	Iterator<DLLRulesData> dllRuleIterator;
 	DLLRulesData currentDLLRule;
 	Instruction currentInstruction;
-	int suspiciousOccurrencesFound = 0;
 	Address [] jumpTargets;
-	List<Address> addressesOfOccurences = new ArrayList<>();
 	
 	protected final static int EOL_COMMENT = 0; //Code for EOL-Comment
 	
 	
 	public FindVMDetectionAnalyzingStrategyAbstract(Program program, AddressSetView set, TaskMonitor monitor,
-			MessageLog log, String strategyName) {
+			MessageLog log, String strategyName, FindVMDetectionBookmarks bookmarks) {
 		this.program = program;
 		this.set = set;
 		this.monitor = monitor;
 		this.log = log;
 		this.strategyName = strategyName;
+		this.bookmarks = bookmarks;
 	}
 
 
@@ -106,11 +108,8 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 						for(ParameterRulesData currentParameterRule : currentFunctionRule.parameters) {
 							Address suspectedVMDetectionAddress = checkAgainstRules(currentFunction, currentParameterRule);
 							if(suspectedVMDetectionAddress  != null) {
-								suspiciousOccurrencesFound++;
-								
-								addressesOfOccurences.add(suspectedVMDetectionAddress);
+								bookmarks.setBookmark(suspectedVMDetectionAddress, this);
 								currentInstruction = program.getListing().getInstructionAt(suspectedVMDetectionAddress);
-								currentInstruction.setComment(EOL_COMMENT, "Might be used to distiguish between VM and Host");
 								
 								Instruction nextConditionalJump = seekToNextConditionalJump(currentInstruction);
 								
@@ -150,7 +149,8 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	 */
 	protected Instruction seekToNextConditionalJump(Instruction suspiciousInstrution) {
 		int currentDistance = 0;
-		Instruction inst = suspiciousInstrution;
+		Instruction inst = suspiciousInstrution.getNext();
+			
 		
 		while(inst.isFallthrough() && currentDistance < MAX_DISTANCE_FOR_JUMP) {
 			inst= inst.getNext();
@@ -166,9 +166,12 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	/**
 	 * prints a message with a preceding strategy unique description using the provided MessageLog object
 	 * @param msg the String to be printed
+	 * @param errorMessage 
 	 */
-	public void printMessage(String msg) {
-		log.appendMsg(strategyName + ": " + msg);
+	public void printMessage(String msg, boolean errorMessage) {
+		if(verbose || errorMessage) {
+			log.appendMsg(strategyName + ": " + msg);
+		}
 	}
 	
 	public void loadRules() throws CancelledException{
@@ -185,7 +188,7 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 				pathToJson = pathToJson.resolve("WINDOWS");
 				break;
 			default:
-				printMessage("ERROR with OS");
+				printMessage("ERROR with OS", true);
 				break;
 		}
 		String fileName = "";
@@ -243,11 +246,11 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 		} 
 		catch (FileNotFoundException e) {
 			CancelledException ex = new CancelledException("ERROR file not found: " + fileName);
-			printMessage(ex.getMessage());
+			printMessage(ex.getMessage(), true);
 			throw ex;
 		} catch (IOException e) {
 			CancelledException ex = new CancelledException("ERROR reading File");
-			printMessage(ex.getMessage());
+			printMessage(ex.getMessage(), true);
 			throw ex;
 		}
 		finally {
@@ -255,19 +258,19 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 				br.close();
 			} catch (IOException e) {
 				CancelledException ex = new CancelledException("ERROR closing File");
-				printMessage(ex.getMessage());
+				printMessage(ex.getMessage(), true);
 				throw ex;
 			}
 		    catch (NullPointerException e) {
 				CancelledException ex = new CancelledException("ERROR closing File");
-				printMessage(ex.getMessage());
+				printMessage(ex.getMessage(), true);
 				throw ex;
 		    }
 		}
 		
 		JSONError er = parser.parse(jsonContent, tokens);
 		if(er != JSONError.JSMN_SUCCESS) {
-			printMessage(er.toString());
+			printMessage(er.toString(), true);
 		}
 		Object obj = parser.convert(jsonContent, tokens);
 		rules = new FindVMDetectionRulesData();
@@ -275,7 +278,7 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 			rules.populate(obj);
 		}
 		catch(Exception e) {
-			printMessage("ERROR in json File Syntax");
+			printMessage("ERROR in json File Syntax", true);
 			throw e;
 		}
 	}
@@ -286,10 +289,7 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 	} 
 	
 	public void printResults() {
-		printMessage("Found " + suspiciousOccurrencesFound + " suspicious Occurrences");
-		if(!addressesOfOccurences.isEmpty()) {
-			printMessage("First at: " + addressesOfOccurences.get(0).toString());
-		}
+		
 	}
 	
 	public boolean usesKernerExternalLibrary(String name) {
@@ -318,7 +318,7 @@ public abstract class FindVMDetectionAnalyzingStrategyAbstract {
 			return checkAgainstIntegerRules(f, paramRule);
 		}
 		else {
-			printMessage("ERROR in file");
+			printMessage("ERROR in file", true);
 		}
 		return null;
 	}

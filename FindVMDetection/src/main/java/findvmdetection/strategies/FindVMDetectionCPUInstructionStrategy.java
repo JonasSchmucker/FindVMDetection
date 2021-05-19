@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import findvmdetection.util.FindVMDetectionBookmarks;
 import findvmdetection.util.FindVMDetectionCSVLoader;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.program.model.address.Address;
@@ -26,8 +27,8 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 	
 	private List<String> suspiciousInstructions; 
 	
-	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, String strategyName){
-		super(program, set, monitor, log, strategyName);
+	public FindVMDetectionCPUInstructionStrategy(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log, String strategyName, FindVMDetectionBookmarks bookmarks){
+		super(program, set, monitor, log, strategyName, bookmarks);
 		listing = program.getListing();
 		instructions = listing.getInstructions(set, true);
 
@@ -50,10 +51,7 @@ public class FindVMDetectionCPUInstructionStrategy extends FindVMDetectionAnalyz
 		}
 		currentInstruction = instructions.next();
 		if(isSuspiciousInstruction(currentInstruction)) {
-			suspiciousOccurrencesFound++;
-			
-			addressesOfOccurences.add(currentInstruction.getAddress());
-			currentInstruction.setComment(0, "Might be used to distiguish between VM and Host");
+			bookmarks.setBookmark(currentInstruction.getAddress(), this);
 			
 			Instruction nextConditionalJump = seekToNextConditionalJump(currentInstruction);
 			
